@@ -9,12 +9,14 @@ public class Mario : MonoBehaviour {
 	public float forcaImpulsoLados;
 	bool jogando;
 	Rigidbody2D rb;
+	SpriteRenderer sr;
 	Vector3 posicaoInicial;
 	float limiteX;
 	private int pontos;
 
 	void Start () {
 		rb = GetComponent<Rigidbody2D> ();
+		sr = GetComponent<SpriteRenderer> ();
 		rb.gravityScale = 0.0f;
 		pontos = 0;
 
@@ -28,13 +30,6 @@ public class Mario : MonoBehaviour {
 			jogando = true;
 		}
 	}
-
-	/**
-	 * Caso o personagem ultrapasse um dos lados da tela, ele aparece no outro
-	 */
-	void AtualizaPosicaoPersonagem() {
-		// TODO
-	}
 	
 	void Update () {
 		if (Input.GetButtonDown("Fire1")) {
@@ -45,27 +40,34 @@ public class Mario : MonoBehaviour {
 		}
 
 		if (Input.GetKey(KeyCode.LeftArrow)) {
+			sr.flipX = false;
 			IniciaGravidade();
-
 			rb.AddForce (Vector2.left * forcaImpulsoLados);
-
-			AtualizaPosicaoPersonagem ();
 		}
 
 		if (Input.GetKey(KeyCode.RightArrow)) {
+			sr.flipX = true;
 			IniciaGravidade();
-
 			rb.AddForce (Vector2.right * forcaImpulsoLados);
 		}
 	}
 
 	void OnTriggerEnter2D (Collider2D c) {
-		Debug.Log ("Colidiu");
-		Destroy (c.gameObject);
-		pontos++;
+		if (c.gameObject.tag == "parede" && rb.position.x < 0) {
+			Debug.Log ("Colidiu com parede esquerda");
+			transform.position = new Vector2 (2.44f, transform.position.y);
 
-		if (pontos == 3) {
-			SceneManager.LoadScene ("inicio");
+		} else if ((c.gameObject.tag == "parede" && rb.position.x > 0)){
+			Debug.Log ("Colidiu com parede direita");
+			transform.position = new Vector2 (-2.48f, transform.position.y);
+
+		} else {
+			Destroy (c.gameObject);
+			pontos++;
+
+			if (pontos == 3) {
+				SceneManager.LoadScene ("inicio");
+			}
 		}
 	}
 }
